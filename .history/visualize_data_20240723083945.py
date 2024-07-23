@@ -45,11 +45,14 @@ def visualize_performance():
     df_filtered = df_filtered.T
 
     # Convert the percentage values for heatmap visualization
-    df_filtered_values = df_filtered.applymap(format_for_heatmap)
+    df_filtered = df_filtered.applymap(format_for_heatmap)
+
+    # Clip extreme values to handle outliers
+    df_filtered = df_filtered.clip(lower=-100, upper=100)
 
     plt.figure(figsize=(20, 12))
     cmap = sns.diverging_palette(150, 10, s=80, l=55, n=9, as_cmap=True)  # Green and Red
-    sns.heatmap(df_filtered_values, annot=df_filtered, cmap=cmap, fmt="", linewidths=.5, cbar=True, annot_kws={"size": 12}, center=0, vmax=50)
+    sns.heatmap(df_filtered, annot=True, cmap=cmap, fmt=".2f", linewidths=.5, cbar=True, annot_kws={"size": 12}, center=0)
     plt.title('Major Currency Performance Relative to USD (2017 baseline)', fontsize=20)
     plt.xlabel('Year', fontsize=15)
     plt.ylabel('Currency', fontsize=15)
@@ -64,3 +67,15 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
+
+
+
+
+
+
+
+
+

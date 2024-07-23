@@ -1,6 +1,5 @@
 import sqlite3
 import pandas as pd
-import warnings
 
 def load_data():
     conn = sqlite3.connect('currency_performance.db')
@@ -22,10 +21,8 @@ def calculate_performance(df):
     performance = performance.T
     performance.reset_index(inplace=True)
     performance.rename(columns={'index': 'currency'}, inplace=True)
-    # Suppress FutureWarning
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore", category=FutureWarning)
-        performance.iloc[:, 1:] = performance.iloc[:, 1:].astype(float).applymap(lambda x: f"{x:.2f} %")
+    # Convert to float and format the performance values to x.xx %
+    performance.iloc[:, 1:] = performance.iloc[:, 1:].astype(float).applymap(lambda x: f"{x:.2f} %")
     return performance
 
 def main():
@@ -35,5 +32,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-
 

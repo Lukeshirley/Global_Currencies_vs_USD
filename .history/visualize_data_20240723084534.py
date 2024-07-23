@@ -49,7 +49,7 @@ def visualize_performance():
 
     plt.figure(figsize=(20, 12))
     cmap = sns.diverging_palette(150, 10, s=80, l=55, n=9, as_cmap=True)  # Green and Red
-    sns.heatmap(df_filtered_values, annot=df_filtered, cmap=cmap, fmt="", linewidths=.5, cbar=True, annot_kws={"size": 12}, center=0, vmax=50)
+    sns.heatmap(df_filtered_values, annot=df_filtered, cmap=cmap, fmt="", linewidths=.5, cbar=True, annot_kws={"size": 12}, center=0)
     plt.title('Major Currency Performance Relative to USD (2017 baseline)', fontsize=20)
     plt.xlabel('Year', fontsize=15)
     plt.ylabel('Currency', fontsize=15)
