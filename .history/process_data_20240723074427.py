@@ -1,6 +1,5 @@
 import sqlite3
 import pandas as pd
-import warnings
 
 def load_data():
     conn = sqlite3.connect('currency_performance.db')
@@ -17,23 +16,37 @@ def calculate_performance(df):
     for date in df['date'].unique():
         if date != base_year:
             date_rates = df[df['date'] == date].set_index('currency')['rate']
-            performance[date] = ((date_rates / base_rates) - 1) * 100
+            performance[date] = (date_rates / base_rates - 1) * 100
 
     performance = performance.T
     performance.reset_index(inplace=True)
     performance.rename(columns={'index': 'currency'}, inplace=True)
-    # Suppress FutureWarning
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore", category=FutureWarning)
-        performance.iloc[:, 1:] = performance.iloc[:, 1:].astype(float).applymap(lambda x: f"{x:.2f} %")
+    # Format the performance values to x.xx %
+    performance.iloc[:, 1:] = performance.iloc[:, 1:].applymap(lambda x: f"{x:.2f} %")
     return performance
 
 def main():
     df = load_data()
+    print("Loaded data from database:")
+    print(df.head())  # Debugging: Check the loaded data
     performance = calculate_performance(df)
+    print("Performance DataFrame:")
+    print(performance.head())  # Debugging: Check the performance DataFrame
     performance.to_csv('currency_performance.csv', index=False)
 
 if __name__ == "__main__":
     main()
+
+
+
+
+
+
+
+
+
+
+
+
 
 

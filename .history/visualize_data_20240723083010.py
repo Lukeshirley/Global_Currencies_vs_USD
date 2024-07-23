@@ -10,6 +10,8 @@ def format_for_heatmap(value):
 
 def visualize_performance():
     df = pd.read_csv('currency_performance.csv')
+    print("Loaded data:")
+    print(df.head())  # Debugging: Check the loaded data
 
     # List of top 15 countries by GDP and their currencies
     major_currencies = {
@@ -34,9 +36,18 @@ def visualize_performance():
     
     # Filter only those currencies that are available in the dataset
     available_major_currencies = {k: v for k, v in major_currencies.items() if k in df.columns}
+    print("Available major currencies:")
+    print(available_major_currencies)
+
+    if not available_major_currencies:
+        print("None of the specified major currencies are available in the dataset.")
+        print("Available currencies:", df.columns.tolist())
+        return
 
     # Filter the DataFrame to include only the major currencies
     df_filtered = df[available_major_currencies.keys()]
+    print("Filtered data for major currencies:")
+    print(df_filtered.head())  # Debugging: Check the filtered data
 
     # Rename the columns to include country names
     df_filtered.columns = [f"{country} ({currency})" for currency, country in available_major_currencies.items()]
@@ -45,17 +56,17 @@ def visualize_performance():
     df_filtered = df_filtered.T
 
     # Convert the percentage values for heatmap visualization
-    df_filtered_values = df_filtered.applymap(format_for_heatmap)
+    df_filtered = df_filtered.applymap(format_for_heatmap)
 
     plt.figure(figsize=(20, 12))
-    cmap = sns.diverging_palette(150, 10, s=80, l=55, n=9, as_cmap=True)  # Green and Red
-    sns.heatmap(df_filtered_values, annot=df_filtered, cmap=cmap, fmt="", linewidths=.5, cbar=True, annot_kws={"size": 12}, center=0, vmax=50)
-    plt.title('Major Currency Performance Relative to USD (2017 baseline)', fontsize=24, pad=20)
-    plt.xlabel('Year', fontsize=15, labelpad=20)
-    plt.ylabel('Currency', fontsize=15, labelpad=20)
-    plt.xticks(ticks=[i + 0.5 for i in range(len(df_filtered.columns))], labels=[d[:4] for d in df_filtered.columns], rotation=0, ha='center', fontsize=12)
+    cmap = sns.diverging_palette(150, 275, s=80, l=55, n=9, as_cmap=True)  # Green and Red
+    sns.heatmap(df_filtered, annot=True, cmap=cmap, fmt=".2f", linewidths=.5, cbar=True, annot_kws={"size": 12}, center=0)
+    plt.title('Major Currency Performance Relative to USD (2017 baseline)', fontsize=20)
+    plt.xlabel('Year', fontsize=15)
+    plt.ylabel('Currency', fontsize=15)
+    plt.xticks(ticks=range(len(df_filtered.columns)), labels=[d[:4] for d in df_filtered.columns], rotation=45, fontsize=12)
     plt.yticks(fontsize=12)
-    plt.tight_layout(pad=3.0)
+    plt.tight_layout()
     plt.savefig('major_currency_performance_matrix.png', dpi=300)
     plt.show()
 
@@ -64,5 +75,12 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
+
+
+
+
 
 
