@@ -17,7 +17,7 @@ def visualize_performance():
         'USD': 'United States',
         'CNY': 'China',
         'JPY': 'Japan',
-        'EUR': 'EU',
+        'EUR': 'Germany',
         'INR': 'India',
         'GBP': 'United Kingdom',
         'BRL': 'Brazil',
