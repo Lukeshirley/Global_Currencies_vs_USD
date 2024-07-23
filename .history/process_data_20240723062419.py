@@ -1,0 +1,29 @@
+# process_data.py
+import sqlite3
+import pandas as pd
+
+def load_data():
+    conn = sqlite3.connect('currency_performance.db')
+    df = pd.read_sql_query("SELECT * FROM currency_data", conn)
+    conn.close()
+    return df
+
+def calculate_performance(df):
+    base_year = '2017-12-31'
+    base_rates = df[df['date'] == base_year].set_index('currency')['rate']
+    performance = pd.DataFrame()
+
+    for year in df['date'].unique():
+        year_rates = df[df['date'] == year].set_index('currency')['rate']
+        performance[year] = (year_rates / base_rates - 1) * 100
+
+    return performance.T
+
+def main():
+    df = load_data()
+    performance = calculate_performance(df)
+    performance.to_csv('currency_performance.csv')
+
+if __name__ == "__main__":
+    main()
+
