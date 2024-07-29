@@ -73,11 +73,8 @@ def visualize_performance(df):
     # Concatenate the dataframes
     df_combined = pd.concat([df_currencies, empty_row, df_cryptos])
 
-    # Ensure all values are float for heatmap
-    df_combined = df_combined.apply(pd.to_numeric, errors='coerce')
-
     plt.figure(figsize=(20, 12))
-    sns.heatmap(df_combined, annot=df_combined, cmap=cmap, fmt="", linewidths=.5, cbar=True, annot_kws={"size": 12}, center=0, vmin=-50, vmax=200)
+    sns.heatmap(df_combined.astype(float), annot=df_combined, cmap=cmap, fmt="", linewidths=.5, cbar=True, annot_kws={"size": 12}, center=0, vmin=-50, vmax=200)
     plt.title('Currency and Cryptocurrency Performance Relative to USD', fontsize=24, pad=20)
     plt.xlabel('Year', fontsize=15, labelpad=20)
     plt.ylabel('Currency/Cryptocurrency', fontsize=15, labelpad=20)
@@ -94,6 +91,5 @@ def main():
 
 if __name__ == "__main__":
     main()
-
 
 

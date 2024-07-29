@@ -1,7 +1,7 @@
 import requests
 import sqlite3
 import yfinance as yf
-from datetime import datetime, timedelta
+from datetime import datetime
 import os
 from dotenv import load_dotenv
 
@@ -19,9 +19,7 @@ def fetch_currency_data(date):
     return response.json()
 
 def save_data_to_db(data, date):
-    db_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'currency_performance.db')
-    os.makedirs(os.path.dirname(db_path), exist_ok=True)
-    conn = sqlite3.connect(db_path)
+    conn = sqlite3.connect('../data/currency_performance.db')
     cursor = conn.cursor()
     cursor.execute('''CREATE TABLE IF NOT EXISTS currency_data (
                         date TEXT,
@@ -35,17 +33,13 @@ def save_data_to_db(data, date):
     conn.close()
 
 def fetch_crypto_data(crypto, date):
-    start_date = datetime.strptime(date, '%Y-%m-%d')
-    end_date = start_date + timedelta(days=1)
-    data = yf.download(crypto, start=start_date, end=end_date)
+    data = yf.download(crypto, start=date, end=date)
     if not data.empty:
         return data['Adj Close'][0]
     return None
 
 def save_crypto_data_to_db(crypto_data, date):
-    db_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'currency_performance.db')
-    os.makedirs(os.path.dirname(db_path), exist_ok=True)
-    conn = sqlite3.connect(db_path)
+    conn = sqlite3.connect('../data/currency_performance.db')
     cursor = conn.cursor()
     cursor.execute('''CREATE TABLE IF NOT EXISTS crypto_data (
                         date TEXT,
@@ -74,7 +68,6 @@ def main():
 
 if __name__ == "__main__":
     main()
-
 
 
 

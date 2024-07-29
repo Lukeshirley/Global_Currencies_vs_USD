@@ -12,7 +12,7 @@ def format_for_heatmap(value):
     try:
         return float(value.replace('%', ''))
     except:
-        return float('nan')
+        return 0
 
 def load_data(csv_path):
     logger.info(f"Loading data from {csv_path}")
@@ -40,17 +40,14 @@ def visualize_performance(df):
         'TRY': 'Turkey'
     }
 
-    # Cryptocurrencies
-    cryptocurrencies = ['BTC-USD', 'ETH-USD', 'SOL-USD']
-
     # Filter only those currencies that are available in the dataset
     available_major_currencies = {k: v for k, v in major_currencies.items() if k in df.columns}
-
+    
     # Filter the DataFrame to include only the major currencies
-    df_filtered = df[['date'] + list(available_major_currencies.keys()) + cryptocurrencies]
+    df_filtered = df[['date'] + list(available_major_currencies.keys())]
 
     # Rename the columns to include country names
-    df_filtered.columns = ['date'] + [f"{country} ({currency})" for currency, country in available_major_currencies.items()] + cryptocurrencies
+    df_filtered.columns = ['date'] + [f"{country} ({currency})" for currency, country in available_major_currencies.items()]
 
     # Transpose the DataFrame for proper visualization
     df_filtered.set_index('date', inplace=True)
@@ -63,25 +60,34 @@ def visualize_performance(df):
     colors = [(0, 'darkgreen'), (0.5, 'white'), (1, 'darkred')]
     cmap = LinearSegmentedColormap.from_list('custom_red_green', colors, N=256)
 
-    # Separate fiat currencies and cryptocurrencies for visualization
-    df_currencies = df_filtered_values.loc[[f"{country} ({currency})" for currency, country in available_major_currencies.items()]]
-    df_cryptos = df_filtered_values.loc[cryptocurrencies]
-
-    # Create an empty DataFrame to separate the two
-    empty_row = pd.DataFrame([[''] * df_currencies.shape[1]], columns=df_currencies.columns, index=[''])
-
-    # Concatenate the dataframes
-    df_combined = pd.concat([df_currencies, empty_row, df_cryptos])
-
-    # Ensure all values are float for heatmap
-    df_combined = df_combined.apply(pd.to_numeric, errors='coerce')
-
     plt.figure(figsize=(20, 12))
-    sns.heatmap(df_combined, annot=df_combined, cmap=cmap, fmt="", linewidths=.5, cbar=True, annot_kws={"size": 12}, center=0, vmin=-50, vmax=200)
+    sns.heatmap(df_filtered_values, annot=df_filtered, cmap=cmap, fmt="", linewidths=.5, cbar=True, annot_kws={"size": 12}, center=0, vmin=-15, vmax=50)
+    plt.title('Major Currency Performance Relative to USD (2017 baseline)', fontsize=24, pad=20)
+    plt.xlabel('Year', fontsize=15, labelpad=20)
+    plt.ylabel('Currency', fontsize=15, labelpad=20)
+    plt.xticks(ticks=[i + 0.5 for i in range(len(df_filtered.columns))], labels=[d[:4] for d in df_filtered.columns], rotation=0, ha='center', fontsize=12)
+    plt.yticks(fontsize=12)
+    plt.tight_layout(pad=3.0)
+    plt.savefig('major_currency_performance_matrix.png', dpi=300)
+    plt.show()
+
+    # Visualize cryptocurrency data
+    cryptos = ['BTC-USD', 'ETH-USD', 'SOL-USD']
+    df_cryptos = df[['date'] + cryptos]
+
+    # Add an empty row to separate fiat currencies and cryptocurrencies
+    empty_row = pd.DataFrame(index=[''], columns=df_cryptos.columns)
+    df_cryptos = pd.concat([df_filtered_values, empty_row, df_cryptos.set_index('date').T])
+
+    # Convert the percentage values for heatmap visualization
+    df_cryptos_values = df_cryptos.applymap(format_for_heatmap)
+
+    plt.figure(figsize=(20, 8))
+    sns.heatmap(df_cryptos_values, annot=df_cryptos, cmap=cmap, fmt="", linewidths=.5, cbar=True, annot_kws={"size": 12}, center=0, vmin=-50, vmax=200)
     plt.title('Currency and Cryptocurrency Performance Relative to USD', fontsize=24, pad=20)
     plt.xlabel('Year', fontsize=15, labelpad=20)
     plt.ylabel('Currency/Cryptocurrency', fontsize=15, labelpad=20)
-    plt.xticks(ticks=[i + 0.5 for i in range(len(df_combined.columns))], labels=[d[:4] for d in df_combined.columns], rotation=0, ha='center', fontsize=12)
+    plt.xticks(ticks=[i + 0.5 for i in range(len(df_cryptos.columns))], labels=[d[:4] for d in df_cryptos.columns], rotation=0, ha='center', fontsize=12)
     plt.yticks(fontsize=12)
     plt.tight_layout(pad=3.0)
     plt.savefig('currency_crypto_performance_matrix.png', dpi=300)
@@ -94,6 +100,5 @@ def main():
 
 if __name__ == "__main__":
     main()
-
 
 
