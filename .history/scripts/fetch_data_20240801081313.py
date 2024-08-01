@@ -1,3 +1,5 @@
+# fetch_data.py
+
 import requests
 import sqlite3
 from datetime import datetime
@@ -14,7 +16,7 @@ def fetch_currency_data(date):
     return response.json()
 
 def save_data_to_db(data, date):
-    conn = sqlite3.connect('data/currency_performance.db')
+    conn = sqlite3.connect('currency_performance.db')
     cursor = conn.cursor()
     cursor.execute('''CREATE TABLE IF NOT EXISTS currency_data (
                         date TEXT,
@@ -35,24 +37,23 @@ def fetch_crypto_data(tickers, start_date):
     return pd.DataFrame(data)
 
 def combine_data(dates, crypto_tickers, start_date):
-    conn = sqlite3.connect('data/currency_performance.db')
+    conn = sqlite3.connect('currency_performance.db')
     df_list = []
     for date in dates:
-        query = f"SELECT date, currency, rate FROM currency_data WHERE date='{date}'"
+        query = f"SELECT currency, rate FROM currency_data WHERE date='{date}'"
         df = pd.read_sql(query, conn)
+        df['date'] = date
+        df = df.pivot(index='date', columns='currency', values='rate')
         df_list.append(df)
     conn.close()
 
-    currency_data = pd.concat(df_list).drop_duplicates(subset=['date', 'currency'])
-
-    # Pivot the DataFrame to have dates as rows and currencies as columns
-    currency_data_pivoted = currency_data.pivot(index='date', columns='currency', values='rate')
-
+    currency_data = pd.concat(df_list)
+    
     # Fetch cryptocurrency data
     crypto_data = fetch_crypto_data(crypto_tickers, start_date)
     
     # Combine data
-    combined_data = currency_data_pivoted.join(crypto_data, how='outer')
+    combined_data = currency_data.join(crypto_data, how='outer')
     
     # Calculate performance relative to the baseline date
     baseline_date = '2017-12-31'
@@ -79,7 +80,6 @@ def main():
 
 if __name__ == "__main__":
     main()
-
 
 
 
