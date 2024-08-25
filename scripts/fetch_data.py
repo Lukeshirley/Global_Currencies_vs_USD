@@ -26,7 +26,7 @@ def save_data_to_db(data, date):
     conn.close()
 
 def main():
-    dates = ['2017-12-31', '2018-12-31', '2019-12-31', '2020-12-31', '2021-12-31', '2022-12-31', datetime.now().strftime('%Y-%m-%d')]
+    dates = ['2017-12-31', '2018-12-31', '2019-12-31', '2020-12-31', '2021-12-31', '2022-12-31', '2023-12-31', datetime.now().strftime('%Y-%m-%d')]
     for date in dates:
         data = fetch_currency_data(date)
         save_data_to_db(data, date)
