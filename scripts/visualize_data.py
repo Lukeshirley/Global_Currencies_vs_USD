@@ -1,6 +1,7 @@
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+from datetime import datetime
 from matplotlib.colors import LinearSegmentedColormap
 
 def format_for_heatmap(value):
@@ -52,9 +53,17 @@ def visualize_performance():
     colors = [(0, 'darkgreen'), (0.5, 'white'), (1, 'darkred')]
     cmap = LinearSegmentedColormap.from_list('custom_red_green', colors, N=256)
 
+    # Get today's date in the desired format
+    today_date = datetime.today().strftime('%B %d, %Y')
+
+    # Create the title string with the current date
+    title = f'Global Currencies vs USD as of {today_date} (2017 Baseline)'
+
+
+
     plt.figure(figsize=(20, 12))
     sns.heatmap(df_filtered_values, annot=df_filtered, cmap=cmap, fmt="", linewidths=.5, cbar=True, annot_kws={"size": 12}, center=0, vmin=-15, vmax=50)
-    plt.title('Major Currency Performance Relative to USD (2017 baseline)', fontsize=24, pad=20)
+    plt.title(title, fontsize=24, pad=20)
     plt.xlabel('Year', fontsize=15, labelpad=20)
     plt.ylabel('Currency', fontsize=15, labelpad=20)
     plt.xticks(ticks=[i + 0.5 for i in range(len(df_filtered.columns))], labels=[d[:4] for d in df_filtered.columns], rotation=0, ha='center', fontsize=12)
